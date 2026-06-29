@@ -4,6 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Math Truck Puzzle</title>
+    <script>
+        window.onerror = function(message, source, lineno, colno, error) {
+            alert("GLOBAL JS ERROR:\n" + message + "\nLine: " + lineno + "\nSource: " + source);
+            return false;
+        };
+    </script>
     <!-- Google Fonts: Inter & Georgia -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
