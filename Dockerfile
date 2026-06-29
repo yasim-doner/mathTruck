@@ -1,5 +1,8 @@
 FROM nginx:alpine
 
+# Remove default configuration that overrides our server block
+RUN rm -f /etc/nginx/conf.d/default.conf
+
 # Copy custom nginx configuration
 COPY nginx.conf /etc/nginx/nginx.conf
 
