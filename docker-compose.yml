@@ -1,0 +1,12 @@
+version: '3.8'
+
+services:
+  web:
+    build: .
+    expose:
+      - "80"
+    # volumes mount can be kept for config files but is commented out for production server use
+    # volumes:
+    #   - .:/usr/share/nginx/html
+    environment:
+      - NODE_ENV=development

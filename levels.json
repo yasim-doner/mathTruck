@@ -1,0 +1,88 @@
+[
+  {
+    "name": "Level 1: Straight Slalom",
+    "instructions": "Avoid the central obstacle. Build a path to collect the gems and pass around it!",
+    "xMin": -10,
+    "xMax": 10,
+    "yMin": -6,
+    "yMax": 6,
+    "startX": -10,
+    "finishX": 10,
+    "obstacles": [
+      { "equation": "x^2 + y^2 = 2.25" }
+    ],
+    "rewards": [
+      { "pos": { "x": -5, "y": -2 } },
+      { "pos": { "x": 5, "y": 2 } }
+    ],
+    "constraints": {
+      "maxFunctions": 2,
+      "forbiddenOperators": ["sin", "cos", "tan", "abs", "sqrt"],
+      "requireContinuous": true,
+      "requireSmooth": false,
+      "maxArcLength": 24.0,
+      "truckStartYLevel": -2.0,
+      "truckEndYLevel": 2.0,
+      "enabledEquations": ["explicit", "implicit"]
+    }
+  },
+  {
+    "name": "Level 2: The Math Tunnel",
+    "instructions": "Stay inside the corridor between y = 3 and y = -3. Solve using trigonometric functions!",
+    "xMin": -10,
+    "xMax": 10,
+    "yMin": -6,
+    "yMax": 6,
+    "startX": -10,
+    "finishX": 10,
+    "obstacles": [
+      { "equation": "y = 3.0", "xRange": [-10, 10] },
+      { "equation": "y = -3.0", "xRange": [-10, 10] }
+    ],
+    "rewards": [
+      { "pos": { "x": -6, "y": 0 } },
+      { "pos": { "x": 0, "y": 0 } },
+      { "pos": { "x": 6, "y": 0 } }
+    ],
+    "constraints": {
+      "maxFunctions": 2,
+      "forbiddenOperators": ["abs", "sqrt"],
+      "requireContinuous": true,
+      "requireSmooth": true,
+      "maxArcLength": 26.0,
+      "truckStartYLevel": 0.0,
+      "truckEndYLevel": 0.0,
+      "enabledEquations": ["explicit", "derivative", "integral"]
+    }
+  },
+  {
+    "name": "Level 3: Slalom Master",
+    "instructions": "Weave between the three point obstacles using smooth curve junctions.",
+    "xMin": -10,
+    "xMax": 10,
+    "yMin": -6,
+    "yMax": 6,
+    "startX": -10,
+    "finishX": 10,
+    "obstacles": [
+      { "equation": "(x + 4)^2 + (y + 2)^2 = 1.44" },
+      { "equation": "(x - 4)^2 + (y - 2)^2 = 1.44" },
+      { "equation": "x^2 + (y - 1.5)^2 = 1.44" }
+    ],
+    "rewards": [
+      { "pos": { "x": -7, "y": 2 } },
+      { "pos": { "x": 7, "y": -2 } },
+      { "pos": { "x": 0, "y": -3 } }
+    ],
+    "constraints": {
+      "maxFunctions": 3,
+      "forbiddenOperators": ["abs"],
+      "requireContinuous": true,
+      "requireSmooth": true,
+      "maxArcLength": 30.0,
+      "truckStartYLevel": -1,
+      "truckEndYLevel": -1,
+      "enabledEquations": ["explicit", "implicit", "derivative", "integral"]
+    }
+  }
+]

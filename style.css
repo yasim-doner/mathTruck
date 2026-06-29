@@ -1,0 +1,882 @@
+:root {
+    color-scheme: light;
+    --page-bg-start: #fbf7f0;
+    --page-bg-end: #f5f1ea;
+    --panel-bg: rgba(255, 253, 248, 0.96);
+    --ink: #201b18;
+    --muted: #6d645d;
+    --rule: #d8cec3;
+    --accent: #955f3b;
+    --accent-hover: #b4754a;
+    --accent-light: #f2e6dc;
+    --status-success: #2c6a4f;
+    --status-error: #a83232;
+    --shadow-light: rgba(54, 40, 23, 0.08);
+    --shadow-medium: rgba(54, 40, 23, 0.16);
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    color: var(--ink);
+    font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    line-height: 1.4;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+/* Page Layout */
+.page {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+}
+
+/* JSXGraph Container */
+#jxgbox {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: none !important;
+    background-color: var(--page-bg-start) !important;
+    z-index: 1;
+}
+
+/* Transparent overlay canvas */
+#game-canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 10;
+    pointer-events: none;
+    display: block;
+}
+
+/* Floating Card Base */
+.floating-card {
+    position: absolute;
+    z-index: 4;
+    background: var(--panel-bg);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--rule);
+    border-radius: 12px;
+    box-shadow: 0 10px 30px var(--shadow-medium);
+}
+
+/* Floating Top Level Details Panel (minimalist container for the GeoGebra list) */
+.floating-top-panel {
+    top: 20px;
+    left: 20px;
+    width: 320px;
+    z-index: 4;
+}
+
+.math-details-box {
+    display: flex;
+    flex-direction: column;
+    background-color: #ffffff;
+    border: 1px solid var(--rule);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.geogebra-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--rule);
+}
+.geogebra-row:last-child {
+    border-bottom: none;
+}
+
+.geogebra-icon {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    border: 1.5px solid currentColor;
+    background-color: color-mix(in srgb, currentColor 30%, transparent);
+    flex-shrink: 0;
+}
+.geogebra-icon.obstacle {
+    color: #a83232;
+}
+.geogebra-icon.gem {
+    color: #e59c00;
+}
+
+.geogebra-text {
+    font-size: 14px;
+    color: var(--ink);
+    font-family: "Georgia", serif;
+}
+
+/* Floating Bottom Bar (Equation Dock + Actions) */
+.floating-bottom-bar {
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
+    right: 20px;
+    z-index: 4;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    padding: 0;
+}
+
+/* Equation Dock Container */
+.dock-container {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.dock-label-select {
+    font-family: "Georgia", serif;
+    font-style: italic;
+    font-weight: 700;
+    font-size: 22px;
+    color: var(--accent);
+    background: transparent;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 4px;
+    transition: background 0.15s ease;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+}
+
+.dock-label-select:hover, .dock-label-select:focus {
+    background: rgba(149, 95, 59, 0.08);
+}
+
+/* Equation Wrapper styling */
+.eq-input-wrapper {
+    position: relative;
+    flex: 1;
+    min-height: 52px;
+    border: 1px solid var(--rule);
+    border-radius: 8px;
+    background-color: #fffdf8;
+    box-shadow: inset 0 2px 4px rgba(54, 40, 23, 0.04);
+    padding: 4px 18px;
+    display: flex;
+    align-items: center;
+    transition: border-color 150ms ease, box-shadow 150ms ease, background-color 150ms ease;
+}
+
+.eq-input-wrapper:focus-within {
+    border-color: var(--accent);
+    background-color: #ffffff;
+    box-shadow: 0 0 0 4px rgba(149, 95, 59, 0.15), inset 0 2px 4px rgba(54, 40, 23, 0.04);
+}
+
+.eq-input {
+    width: 100%;
+    height: 100%;
+    border: none;
+    background: transparent;
+    color: transparent;
+    -webkit-text-fill-color: transparent;
+    caret-color: var(--ink);
+    font-family: "Georgia", serif;
+    font-size: 20px;
+    font-weight: 700;
+    padding: 0;
+    outline: none;
+    position: relative;
+    z-index: 2;
+}
+
+/* While focused, show native text to enable normal cursor, selection, and editing */
+.eq-input:focus {
+    color: var(--ink) !important;
+    -webkit-text-fill-color: var(--ink) !important;
+}
+
+/* Hide static LaTeX rendering while actively typing/editing */
+.eq-input:focus + .eq-latex-render {
+    opacity: 0;
+}
+
+.eq-input::placeholder {
+    font-family: "Inter", sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    font-style: normal;
+    color: var(--muted);
+}
+
+/* Equation LaTeX Render Overlay Box */
+.eq-latex-render {
+    position: absolute;
+    left: 18px;
+    right: 18px;
+    top: 0;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    pointer-events: none;
+    z-index: 1;
+    font-size: 20px;
+    color: var(--ink);
+    overflow: hidden;
+    white-space: nowrap;
+    transition: opacity 0.1s ease;
+}
+
+/* Live Floating Preview Tooltip (above the dock) */
+.eq-live-preview {
+    position: absolute;
+    bottom: 64px;
+    left: 0;
+    background: var(--panel-bg);
+    border: 1px solid var(--rule);
+    border-radius: 8px;
+    padding: 10px 18px;
+    box-shadow: 0 4px 15px rgba(54, 40, 23, 0.15);
+    z-index: 10;
+    font-size: 18px;
+    color: var(--ink);
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: 0;
+    transform: translateY(8px);
+    transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+/* Show preview tooltip when input is focused and has text */
+.eq-input:focus ~ .eq-live-preview.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Action Buttons */
+.actions-container {
+    display: flex;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+.btn-action {
+    padding: 10px 24px;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 700;
+    text-transform: uppercase;
+    border-radius: 8px;
+    cursor: pointer;
+    outline: none;
+    border: none;
+    transition: background-color 150ms ease, transform 50ms ease;
+}
+.btn-action:active {
+    transform: scale(0.97);
+}
+
+.btn-play {
+    background-color: var(--accent);
+    color: #ffffff;
+    box-shadow: 0 4px 10px rgba(149, 95, 59, 0.2);
+}
+.btn-play:hover {
+    background-color: var(--accent-hover);
+}
+.btn-play:disabled {
+    background-color: var(--rule);
+    color: var(--muted);
+    box-shadow: none;
+    cursor: not-allowed;
+}
+
+.btn-reset {
+    background-color: var(--accent-light);
+    color: var(--accent);
+    border: 1px solid var(--accent);
+}
+.btn-reset:hover {
+    background-color: color-mix(in srgb, var(--accent-light) 70%, var(--rule));
+}
+
+/* Simulation Status Body */
+.status-body {
+    width: 260px;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 8px 12px;
+    background-color: var(--accent-light);
+    color: var(--accent);
+    border-radius: 8px;
+    border: 1px solid var(--accent);
+    text-align: center;
+    flex-shrink: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.status-body.success {
+    color: var(--status-success);
+    background-color: #e2f0d9;
+    border-color: var(--status-success);
+}
+
+.status-body.error {
+    color: var(--status-error);
+    background-color: #fce4e4;
+    border-color: var(--status-error);
+}
+
+/* End of Level Modal Overlay */
+.modal-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(32, 27, 24, 0.45);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    z-index: 99999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-card {
+    background: var(--panel-bg);
+    border: 1px solid var(--rule);
+    border-radius: 16px;
+    box-shadow: 0 20px 50px rgba(54, 40, 23, 0.25);
+    padding: 32px;
+    width: 380px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    animation: popIn 220ms cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes popIn {
+    from {
+        transform: scale(0.85);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.modal-card h2 {
+    font-family: "Georgia", serif;
+    font-size: 30px;
+    font-weight: 700;
+    color: var(--accent);
+    margin-bottom: 4px;
+}
+
+.modal-card p {
+    font-size: 14px;
+    color: var(--muted);
+    line-height: 1.5;
+    margin-bottom: 8px;
+}
+
+.modal-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+}
+
+.modal-actions .btn-action {
+    flex: 1;
+}
+
+/* Keyboard Toggle Button */
+.kb-toggle-btn {
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    border: 1px solid var(--rule);
+    background: var(--panel-bg);
+    color: var(--ink);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 15px var(--shadow-light);
+    z-index: 5;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.kb-toggle-btn:hover {
+    background: var(--accent-light);
+    color: var(--accent);
+    transform: translateY(-2px);
+}
+
+.kb-toggle-btn:active {
+    transform: translateY(0);
+}
+
+/* Slide-Up Math Keyboard Panel */
+.math-keyboard-panel {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 260px;
+    background: rgba(245, 241, 234, 0.95);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-top: 1px solid var(--rule);
+    z-index: 1000;
+    display: grid;
+    grid-template-columns: 4.5fr 4.5fr 2fr;
+    gap: 12px;
+    padding: 12px;
+    box-shadow: 0 -8px 30px rgba(54, 40, 23, 0.12);
+    transform: translateY(100%);
+    transition: transform 0.3s cubic-bezier(0.1, 0.76, 0.55, 0.94);
+}
+
+.math-keyboard-panel.open {
+    transform: translateY(0);
+}
+
+/* Adjust floating bottom bar position when keyboard is open */
+.floating-bottom-bar {
+    position: absolute;
+    bottom: 20px;
+    left: 88px; /* Offset to not cover keyboard toggle button */
+    right: 20px;
+    z-index: 4;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    transition: bottom 0.3s cubic-bezier(0.1, 0.76, 0.55, 0.94);
+}
+
+.floating-bottom-bar.kb-open {
+    bottom: 280px;
+}
+
+/* Keyboard Sections & Buttons styling */
+.kb-section {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: repeat(4, 1fr);
+    gap: 6px;
+}
+
+.kb-section-right {
+    grid-template-columns: 1fr;
+    grid-template-rows: repeat(4, 1fr);
+}
+
+.kb-row-nav {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+}
+
+.kb-btn {
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    background: #ffffff;
+    color: var(--ink);
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    transition: all 0.12s ease;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+/* Specific button type colors */
+.kb-btn:hover {
+    background: var(--accent-light);
+    border-color: var(--accent);
+    color: var(--accent);
+}
+
+.kb-btn:active {
+    transform: scale(0.95);
+    background: var(--accent-light);
+}
+
+.kb-btn:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+    background: #e5e0d7 !important;
+    border-color: #d0c8be !important;
+    color: #a0978c !important;
+    pointer-events: none;
+    transform: none !important;
+    box-shadow: none !important;
+}
+
+.btn-num {
+    background: #e9e3d9;
+    font-size: 16px;
+}
+
+.btn-op {
+    background: #ffffff;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.btn-math i {
+    font-family: Georgia, serif;
+    font-weight: 700;
+}
+
+.btn-toggle, .btn-special {
+    background: #d8cec3;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.btn-nav {
+    background: #d8cec3;
+    font-size: 16px;
+}
+
+.btn-backspace {
+    background: #d8cec3;
+    color: #a83232;
+}
+
+.btn-submit {
+    background: #2c72c0;
+    color: #ffffff;
+    border-color: #245ea3;
+}
+
+.btn-submit:hover {
+    background: #245ea3;
+    color: #ffffff;
+}
+
+.btn-submit:active {
+    background: #1b477c;
+}
+
+/* Add Function Button in Dock */
+.btn-add-func {
+    background: var(--accent);
+    color: #ffffff;
+    border: none;
+    border-radius: 6px;
+    width: 32px;
+    height: 32px;
+    font-size: 18px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: 8px;
+    transition: background 0.15s ease;
+}
+
+.btn-add-func:hover {
+    background: var(--accent-hover);
+}
+
+.btn-add-func:active {
+    transform: scale(0.95);
+}
+
+/* GeoGebra Row Extensions for Player Functions with Multiple Intervals */
+.geogebra-row.player-func {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    background: #f7f9fc;
+    padding: 10px 14px;
+    gap: 8px;
+}
+
+.player-func-header {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    gap: 8px;
+}
+
+.intervals-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+    padding-left: 24px;
+    border-top: 1px dashed rgba(0, 0, 0, 0.08);
+    padding-top: 8px;
+}
+
+.interval-list-container {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    width: 100%;
+}
+
+.interval-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    color: var(--muted);
+}
+
+.btn-add-interval {
+    background: rgba(149, 95, 59, 0.1);
+    border: 1px solid rgba(149, 95, 59, 0.2);
+    color: var(--accent);
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 6px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    align-self: flex-start;
+    margin-top: 2px;
+}
+
+.btn-add-interval:hover {
+    background: var(--accent);
+    color: #ffffff;
+}
+
+.btn-delete-interval {
+    background: none;
+    border: none;
+    color: var(--muted);
+    font-size: 14px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    transition: all 0.1s ease;
+    margin-left: 4px;
+}
+
+.btn-delete-interval:hover {
+    background: rgba(168, 50, 50, 0.1);
+    color: var(--status-error);
+}
+
+.range-inputs-group {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    font-size: 11px;
+    color: var(--muted);
+}
+
+.range-input {
+    width: 38px;
+    height: 20px;
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    background: #ffffff;
+    color: var(--ink);
+    text-align: center;
+    font-family: inherit;
+    font-size: 11px;
+    padding: 0;
+    outline: none;
+}
+
+.range-input:focus {
+    border-color: var(--accent);
+    background: #fffdfa;
+}
+
+.btn-delete-row {
+    background: none;
+    border: none;
+    color: var(--muted);
+    font-size: 18px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    margin-left: auto; /* push both delete+edit to far right */
+    transition: all 0.15s ease;
+    flex-shrink: 0;
+}
+
+.btn-delete-row:hover {
+    background: rgba(168, 50, 50, 0.1);
+    color: var(--status-error);
+}
+
+.btn-edit-row {
+    background: none;
+    border: none;
+    color: var(--muted);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    /* no margin-left: auto — delete button already pushes both to the right */
+    transition: color 0.15s ease;
+    flex-shrink: 0;
+    padding: 0;
+}
+
+.btn-edit-row:hover {
+    color: #2c72c0;
+    background: none;
+}
+
+.btn-edit-row.active {
+    color: #2c72c0;
+    background: none;
+}
+
+/* Editing-state row highlight */
+.player-func.editing {
+    background: rgba(44, 114, 192, 0.05);
+    border-left: 3px solid #2c72c0;
+    border-radius: 0 6px 6px 0;
+}
+
+.geogebra-icon.player {
+    background: #2c72c0;
+    border-color: #1b477c;
+}
+
+.level-constraints {
+    margin: 12px 0 20px 0;
+    padding: 12px 14px;
+    background: rgba(149, 95, 59, 0.04);
+    border: 1px solid rgba(149, 95, 59, 0.12);
+    border-radius: 8px;
+    font-size: 13px;
+    text-align: left;
+}
+
+.constraint-title {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 700;
+    color: var(--accent);
+    margin-bottom: 8px;
+}
+
+.constraint-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 6px;
+    color: var(--ink);
+}
+
+.constraint-item:last-child {
+    margin-bottom: 0;
+}
+
+.constraint-label {
+    font-weight: 500;
+    color: var(--muted);
+}
+
+.constraint-val {
+    font-weight: 600;
+    color: var(--ink);
+    margin-left: auto;
+}
+
+/* Panel Header block and Info Icon button styles */
+.panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    width: 100%;
+}
+
+.panel-title {
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--muted);
+}
+
+.btn-info-icon {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    width: 40px;
+    height: 40px;
+    background: var(--accent);
+    color: #ffffff;
+    border: none;
+    border-radius: 50%;
+    font-family: "Georgia", serif;
+    font-size: 24px;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
+    box-shadow: 0 4px 15px var(--shadow-light);
+    z-index: 5;
+    outline: none;
+}
+
+.btn-info-icon:hover {
+    background: var(--accent-hover);
+    box-shadow: 0 6px 20px rgba(149, 95, 59, 0.25);
+}
+
+.btn-info-icon:active {
+    transform: scale(0.92);
+}

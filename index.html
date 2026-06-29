@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Math Truck Puzzle</title>
+    <!-- Google Fonts: Inter & Georgia -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Georgia:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    
+    <!-- KaTeX for beautiful math equations -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+    
+    <!-- Pretext for Canvas text layouts -->
+    <script src="https://unpkg.com/@chenglou/pretext@0.1.1/dist/index.js"></script>
+    
+    <!-- JSXGraph core styles and scripts -->
+    <link rel="stylesheet" type="text/css" href="jsxgraph.css" />
+    <script type="text/javascript" src="jsxgraphcore.js"></script>
+    
+    <!-- Game Styling -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="page">
+        <!-- JSXGraph interactive plotting container -->
+        <div id="jxgbox" class="jxgbox"></div>
+        
+        <!-- Transparent Canvas Overlay for diamonds, tractor, and explosions -->
+        <canvas id="game-canvas"></canvas>
+        
+        <!-- Floating Top Level Details Card -->
+        <div class="floating-card floating-top-panel">
+            <div id="level-details-math" class="math-details-box">
+                <!-- KaTeX equations rendered here -->
+            </div>
+        </div>
+        
+        <!-- Floating Level Info Button (Top-Right) -->
+        <button type="button" id="open-info-btn" class="btn-info-icon" title="Level Info">i</button>
+        
+        <!-- Floating Bottom Equation Dock & Actions -->
+        <div class="floating-bottom-bar" id="bottom-bar">
+            <!-- Center Equation Input -->
+            <div class="dock-container">
+                <select id="func-type-select" class="dock-label-select">
+                    <option value="explicit">f(x) =</option>
+                    <option value="implicit">0 =</option>
+                    <option value="derivative">f'(x) =</option>
+                    <option value="integral">∫ f(x) dx =</option>
+                </select>
+                <div class="eq-input-wrapper">
+                    <input type="text" id="equation-input" class="eq-input" autocomplete="off" />
+                    <div id="equation-latex-render" class="eq-latex-render"></div>
+                    <div id="equation-live-preview" class="eq-live-preview"></div>
+                </div>
+                <button type="button" id="add-func-button" class="btn-add-func" title="Add function to list">+</button>
+            </div>
+            
+            <!-- Right Actions -->
+            <div class="actions-container">
+                <button type="button" id="play-button" class="btn-action btn-play">Play</button>
+                <button type="button" id="reset-button" class="btn-action btn-reset">Reset</button>
+            </div>
+        </div>
+
+        <!-- Floating Keyboard Toggle Button (Bottom-left) -->
+        <button type="button" id="keyboard-toggle-btn" class="kb-toggle-btn" title="Toggle Keyboard">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="2" y="4" width="20" height="16" rx="2" ry="2"></rect>
+                <line x1="6" y1="8" x2="6.01" y2="8"></line>
+                <line x1="10" y1="8" x2="10.01" y2="8"></line>
+                <line x1="14" y1="8" x2="14.01" y2="8"></line>
+                <line x1="18" y1="8" x2="18.01" y2="8"></line>
+                <line x1="6" y1="12" x2="6.01" y2="12"></line>
+                <line x1="10" y1="12" x2="10.01" y2="12"></line>
+                <line x1="14" y1="12" x2="14.01" y2="12"></line>
+                <line x1="18" y1="12" x2="18.01" y2="12"></line>
+                <line x1="7" y1="16" x2="17" y2="16"></line>
+            </svg>
+        </button>
+
+        <!-- Slide-Up Desmos-Style Math Keyboard -->
+        <div id="math-keyboard" class="math-keyboard-panel">
+            <!-- Left Block: Math Variables, Parentheses, Functions -->
+            <div class="kb-section kb-section-left" id="kb-left-section">
+                <button type="button" class="kb-btn btn-math" data-val="x"><i>x</i></button>
+                <button type="button" class="kb-btn btn-math" data-val="y"><i>y</i></button>
+                <button type="button" class="kb-btn btn-math" data-val="^2">a²</button>
+                <button type="button" class="kb-btn btn-math" data-val="^">aᵇ</button>
+                
+                <button type="button" class="kb-btn btn-math" data-val="(">(</button>
+                <button type="button" class="kb-btn btn-math" data-val=")">)</button>
+                <button type="button" class="kb-btn btn-math" data-val="<">&lt;</button>
+                <button type="button" class="kb-btn btn-math" data-val=">">&gt;</button>
+                
+                <button type="button" class="kb-btn btn-math" data-val="abs(">|a|</button>
+                <button type="button" class="kb-btn btn-math" data-val=",">,</button>
+                <button type="button" class="kb-btn btn-math" data-val="<=">&le;</button>
+                <button type="button" class="kb-btn btn-math" data-val=">=">&ge;</button>
+                
+                <button type="button" class="kb-btn btn-toggle" id="kb-toggle-abc" data-mode="abc">func</button>
+                <button type="button" class="kb-btn btn-math" data-val="e"><i>e</i></button>
+                <button type="button" class="kb-btn btn-math" data-val="sqrt(">√</button>
+                <button type="button" class="kb-btn btn-math" data-val="pi">π</button>
+            </div>
+            
+            <!-- Middle Block: Numpad & Operators -->
+            <div class="kb-section kb-section-mid">
+                <button type="button" class="kb-btn btn-num" data-val="7">7</button>
+                <button type="button" class="kb-btn btn-num" data-val="8">8</button>
+                <button type="button" class="kb-btn btn-num" data-val="9">9</button>
+                <button type="button" class="kb-btn btn-op" data-val="/">÷</button>
+                
+                <button type="button" class="kb-btn btn-num" data-val="4">4</button>
+                <button type="button" class="kb-btn btn-num" data-val="5">5</button>
+                <button type="button" class="kb-btn btn-num" data-val="6">6</button>
+                <button type="button" class="kb-btn btn-op" data-val="*">×</button>
+                
+                <button type="button" class="kb-btn btn-num" data-val="1">1</button>
+                <button type="button" class="kb-btn btn-num" data-val="2">2</button>
+                <button type="button" class="kb-btn btn-num" data-val="3">3</button>
+                <button type="button" class="kb-btn btn-op" data-val="-">−</button>
+                
+                <button type="button" class="kb-btn btn-num" data-val="0">0</button>
+                <button type="button" class="kb-btn btn-num" data-val=".">.</button>
+                <button type="button" class="kb-btn btn-math" data-val="=">=</button>
+                <button type="button" class="kb-btn btn-op" data-val="+">+</button>
+            </div>
+            
+            <!-- Right Block: Navigation & Actions -->
+            <div class="kb-section kb-section-right">
+                <button type="button" class="kb-btn btn-special" id="kb-toggle-constants" data-mode="consts">consts</button>
+                
+                <div class="kb-row-nav">
+                    <button type="button" class="kb-btn btn-nav" id="kb-nav-left">←</button>
+                    <button type="button" class="kb-btn btn-nav" id="kb-nav-right">→</button>
+                </div>
+                
+                <button type="button" class="kb-btn btn-backspace" id="kb-backspace">
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 4H8l-7 8 7 8h13a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z"></path>
+                        <line x1="18" y1="9" x2="12" y2="15"></line>
+                        <line x1="12" y1="9" x2="18" y2="15"></line>
+                    </svg>
+                </button>
+                
+                <button type="button" class="kb-btn btn-submit" id="kb-submit">
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="9 10 4 15 9 20"></polyline>
+                        <path d="M20 4v7a4 4 0 0 1-4 4H4"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Level Info Modal Overlay -->
+        <div id="info-modal" class="modal-overlay" style="display: none;">
+            <div class="modal-card">
+                <h2 id="info-modal-title">Level Info</h2>
+                <p id="info-modal-text"></p>
+                <div id="level-constraints" class="level-constraints"></div>
+                <div class="modal-actions">
+                    <button type="button" id="info-modal-close-btn" class="btn-action">Close</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- End of Level Modal Overlay -->
+        <div id="end-level-modal" class="modal-overlay" style="display: none;">
+            <div class="modal-card">
+                <h2 id="modal-title">Success!</h2>
+                <p id="modal-message">You collected all the gems.</p>
+                <div class="modal-actions">
+                    <button type="button" id="modal-primary-btn" class="btn-action btn-play">Next Level</button>
+                    <button type="button" id="modal-secondary-btn" class="btn-action btn-reset">Retry</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Core Game Logic -->
+    <script src="game.js?v=1.2"></script>
+</body>
+</html>
